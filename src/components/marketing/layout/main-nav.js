@@ -44,6 +44,7 @@ export function MainNav() {
           <Stack direction="row" spacing={2} sx={{ alignItems: 'center', flex: '1 1 auto' }}>
             <Box component={RouterLink} href={paths.home} sx={{ display: 'inline-flex' }}>
               <Logo color="light" height={32} width={122} />
+              asf
             </Box>
             <Box component="nav" sx={{ display: { xs: 'none', md: 'block' } }}>
               <Stack component="ul" direction="row" spacing={1} sx={{ listStyle: 'none', m: 0, p: 0 }}>

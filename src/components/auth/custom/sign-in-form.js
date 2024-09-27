@@ -68,9 +68,10 @@ router.refresh();
   return (
     <Stack style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
       <div>
-        <Box component={RouterLink} href={paths.home} sx={{ display: 'inline-block', fontSize: 0 }}>
-          <Typography variant="h5">UYAT</Typography>
-        </Box>
+      <Box component={RouterLink} href={paths.home} sx={{ display: 'inline-block' }}>
+  <img src="/assets/logo.jpg" alt="Web Police" style={{ height: '40px' }} />
+</Box>
+
       </div>
       <Stack spacing={1}>
         <Divider />

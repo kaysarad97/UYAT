@@ -12,8 +12,6 @@ import { ProductEditForm } from '@/components/dashboard/incidents/product-edit-f
 
 export const metadata = { title: `Details | Incidents | Dashboard | ${config.site.name}` };
 
-// The page should load the product from the API based on the productId param and pass it to the form component.
-// For the sake of simplicity, we are just using a static product object.
 
 export default function Page() {
   return (
@@ -35,12 +33,11 @@ export default function Page() {
               sx={{ alignItems: 'center', display: 'inline-flex', gap: 1 }}
               variant="subtitle2"
             >
-              <ArrowLeftIcon fontSize="var(--icon-fontSize-md)" />
-              incidents
+              
             </Link>
           </div>
           <div>
-            <Typography variant="h4">Редактировать инцидент</Typography>
+            <Typography variant="h4">История проишествий</Typography>
           </div>
         </Stack>
         <ProductEditForm

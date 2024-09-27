@@ -29,13 +29,13 @@ export const layoutConfig = {
         },
         {
           key: 'incidents',
-          title: 'История проишествий',
+          title: 'Проишествий',
           icon: 'read-cv-logo',
 
           items: [
             { key: 'incidents', title: 'Список проишествий', href: paths.dashboard.incidents.list },
             // { key: 'incidents:create', title: 'Create incidents', href: paths.dashboard.incidents.create },
-            // { key: 'incidents:details', title: 'Страница проишествий', href: paths.dashboard.incidents.details('1') },
+            { key: 'incidents:details', title: 'История проишествий', href: paths.dashboard.incidents.details('1') },
           ],
         },
         

@@ -1,20 +1,20 @@
+
 // 'use client';
 
 // import React, { useState } from 'react';
-// import RouterLink from 'next/link';
 // import Box from '@mui/material/Box';
 // import Chip from '@mui/material/Chip';
 // import IconButton from '@mui/material/IconButton';
-// import Link from '@mui/material/Link';
 // import Stack from '@mui/material/Stack';
 // import Typography from '@mui/material/Typography';
+// import CircularProgress from '@mui/material/CircularProgress'; 
 // import { CheckCircle as CheckCircleIcon } from '@phosphor-icons/react/dist/ssr/CheckCircle';
 // import { Clock as ClockIcon } from '@phosphor-icons/react/dist/ssr/Clock';
 // import { Eye as EyeIcon } from '@phosphor-icons/react/dist/ssr/Eye';
 // import { Image as ImageIcon } from '@phosphor-icons/react/dist/ssr/Image';
-// import { paths } from '@/paths';
 // import { DataTable } from '@/components/core/data-table';
-// import { ProductModal } from './product-modal'; // Import the ProductModal component
+// import { ProductModal } from './product-modal';
+// import { fetchApiWithAuth } from '@/lib/auth/custom/client'; // Импорт функции для запросов с авторизацией
 
 // const columns = [
 //   {
@@ -35,10 +35,6 @@
 //               overflow: 'hidden',
 //               width: '80px',
 //             }}
-//             onError={(e) => {
-//               e.target.style.backgroundImage = 'none';
-//               e.target.innerHTML = '<ImageIcon fontSize="var(--icon-fontSize-lg)" />';
-//             }}
 //           />
 //         ) : (
 //           <Box
@@ -56,15 +52,9 @@
 //           </Box>
 //         )}
 //         <div>
-//           <Link
-//             color="text.primary"
-//             component={RouterLink}
-//             href={paths.dashboard.incidents.preview(row.id)}
-//             sx={{ whiteSpace: 'nowrap' }}
-//             variant="subtitle2"
-//           >
+//           <Typography color="text.primary" variant="subtitle2">
 //             {row.title}
-//           </Link>
+//           </Typography>
 //           <Typography color="text.secondary" variant="body2">
 //             {row.tags}
 //           </Typography>
@@ -74,10 +64,9 @@
 //     name: 'Наименование',
 //     width: '300px',
 //   },
-  
 //   {
 //     field: 'achievement_sum',
-//     name: 'Achievement Sum',
+//     name: 'Предполагаемое вознаграждение',
 //     width: '150px',
 //   },
 //   {
@@ -86,25 +75,23 @@
 //     width: '150px',
 //   },
 //   {
-//     formatter: (row) =>
-//       row.geo?.timestamp ? new Date(row.geo.timestamp).toLocaleDateString('ru-RU') : 'No Date Available',
-//     name: 'Дата создания',
-//     width: '150px',
-//   },
-//   {
 //     formatter: (row) => {
+//       const status = row.set_employee ? 'Отправлено' : 'В ожидании'; 'Завершено' 
 //       const mapping = {
 //         'Отправлено': {
 //           label: 'Отправлено',
 //           icon: <CheckCircleIcon color="var(--mui-palette-success-main)" weight="fill" />,
 //         },
-//         'В ожиданий': {
-//           label: 'В ожиданий',
+//         'В ожидании': {
+//           label: 'В ожидании',
+//           icon: <ClockIcon color="var(--mui-palette-secondary-main)" />,
+//         },
+//         'Завершено': {
+//           label: 'Завершено',
 //           icon: <ClockIcon color="var(--mui-palette-secondary-main)" />,
 //         },
 //       };
-//       const { label, icon } = mapping[row.status] ?? { label: 'Unknown', icon: null };
-
+//       const { label, icon } = mapping[status] ?? { label: 'Unknown', icon: null };
 //       return <Chip icon={icon} label={label} size="small" variant="outlined" />;
 //     },
 //     name: 'Статус',
@@ -112,7 +99,7 @@
 //   },
 //   {
 //     formatter: (row, onClick) => (
-//       <IconButton onClick={() => onClick(row)}>
+//       <IconButton onClick={() => onClick(row.id)}>
 //         <EyeIcon />
 //       </IconButton>
 //     ),
@@ -125,9 +112,21 @@
 
 // export function ProductsTable({ rows = [] }) {
 //   const [selectedProduct, setSelectedProduct] = useState(null);
+//   const [loading, setLoading] = useState(false);
+//   const [error, setError] = useState(null);
 
-//   const handleRowClick = (product) => {
-//     setSelectedProduct(product);
+//   const handleRowClick = async (productId) => {
+//     setLoading(true);
+//     try {
+//       const productData = await fetchApiWithAuth(`http://37.99.82.96:8000/api/v1/incident-web/get/${productId}`, {
+//         method: 'GET',
+//       });
+//       setSelectedProduct(productData);
+//     } catch (err) {
+//       setError(err.message);
+//     } finally {
+//       setLoading(false);
+//     }
 //   };
 
 //   const handleCloseModal = () => {
@@ -153,23 +152,29 @@
 //       {selectedProduct && (
 //         <ProductModal open={!!selectedProduct} product={selectedProduct} onClose={handleCloseModal} />
 //       )}
+//       {loading && <CircularProgress />}
+//       {error && <Typography color="error">{error}</Typography>}
 //     </React.Fragment>
 //   );
 // }
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
+import CircularProgress from '@mui/material/CircularProgress'; 
 import { CheckCircle as CheckCircleIcon } from '@phosphor-icons/react/dist/ssr/CheckCircle';
 import { Clock as ClockIcon } from '@phosphor-icons/react/dist/ssr/Clock';
 import { Eye as EyeIcon } from '@phosphor-icons/react/dist/ssr/Eye';
 import { Image as ImageIcon } from '@phosphor-icons/react/dist/ssr/Image';
 import { DataTable } from '@/components/core/data-table';
-import { ProductModal } from './product-modal'; // Импортируем компонент ProductModal
+import { ProductModal } from './product-modal';
+import { fetchApiWithAuth } from '@/lib/auth/custom/client'; // Импорт функции для запросов с авторизацией
+import TokenService from '@/lib/auth/custom/refresh';
+
 
 const columns = [
   {
@@ -189,10 +194,6 @@ const columns = [
               justifyContent: 'center',
               overflow: 'hidden',
               width: '80px',
-            }}
-            onError={(e) => {
-              e.target.style.backgroundImage = 'none';
-              e.target.innerHTML = '<ImageIcon fontSize="var(--icon-fontSize-lg)" />';
             }}
           />
         ) : (
@@ -223,45 +224,66 @@ const columns = [
     name: 'Наименование',
     width: '300px',
   },
-  
   {
     field: 'achievement_sum',
-    name: 'Предпологаемое вознаграждения',
+    name: 'Предполагаемое вознаграждение',
     width: '150px',
   },
-  {
-    formatter: (row) => (row.set_employee ? row.set_employee : 'Not Assigned'),
-    name: 'Назначенный сотрудник',
-    width: '150px',
-  },
-  
+
   {
     formatter: (row) => {
-      const status = row.set_employee ? 'Отправлено' : 'В ожиданий'; // Проверка на наличие прикрепленного сотрудника
+      console.log('Row data:', row);
+      if (row.set_employee_data) {
+        const { name, surname, role } = row.set_employee_data;
+        return `${name} ${surname} (${role})`;
+      }
+      return 'Not Assigned';
+    },
+    name: 'Назначенный сотрудник',
+
+  },
+  {
+    formatter: (row) => {
+      console.log('Row data:', row);
     
+      // Formatting the "created_at" date
+      const createdAt = new Date(row.created_at).toLocaleDateString('ru-RU', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      });
+  
+      // Returning only the date
+      return createdAt;
+    },
+    name:'Дата создание',
+  },
+  {
+    formatter: (row) => {
+      const status = row.status || 'Unknown';
       const mapping = {
         'Отправлено': {
           label: 'Отправлено',
           icon: <CheckCircleIcon color="var(--mui-palette-success-main)" weight="fill" />,
         },
-        'В ожиданий': {
-          label: 'В ожиданий',
+        'В работе': {
+          label: 'В работе',
           icon: <ClockIcon color="var(--mui-palette-secondary-main)" />,
         },
+        'Завершено': {
+          label: 'Завершено',
+          icon: <CheckCircleIcon color="var(--mui-palette-secondary-main)" />,
+        },
       };
-  
       const { label, icon } = mapping[status] ?? { label: 'Unknown', icon: null };
-  
       return <Chip icon={icon} label={label} size="small" variant="outlined" />;
     },
     name: 'Статус',
     width: '150px',
-  }
-  
-  ,
+  },
   {
     formatter: (row, onClick) => (
-      <IconButton onClick={() => onClick(row)}>
+      <IconButton onClick={() => onClick(row.id)}>
         <EyeIcon />
       </IconButton>
     ),
@@ -272,16 +294,81 @@ const columns = [
   },
 ];
 
-export function ProductsTable({ rows = [] }) {
+export function ProductsTable({ filters = {} }) {
+  const [incidents, setIncidents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [selectedProduct, setSelectedProduct] = useState(null);
 
-  const handleRowClick = (product) => {
-    setSelectedProduct(product);
+  const fetchIncidents = async () => {
+    setLoading(true);
+    try {
+      let url = 'http://37.99.82.96:8000/api/v1/incident-web/history?';
+      const queryParams = new URLSearchParams();
+
+      // Добавляем фильтр по статусу
+      if (filters.status) {
+        queryParams.append('statuses', filters.status);
+      }
+
+      // Добавляем фильтр по дате
+      if (filters.date_filter) {
+        queryParams.append('date_filter', filters.date_filter);
+      }
+
+      url += queryParams.toString();
+
+      const token = TokenService.getAccessToken(); // Получаем токен для авторизации
+
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Ошибка при загрузке данных: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      setIncidents(data);
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchIncidents();
+  }, [filters]);
+
+  const handleRowClick = async (productId) => {
+    setLoading(true);
+    try {
+      const productData = await fetchApiWithAuth(`http://37.99.82.96:8000/api/v1/incident-web/get/${productId}`, {
+        method: 'GET',
+      });
+      setSelectedProduct(productData);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleCloseModal = () => {
     setSelectedProduct(null);
   };
+
+  if (loading) {
+    return <CircularProgress />;
+  }
+
+  if (error) {
+    return <Typography color="error">{error}</Typography>;
+  }
 
   return (
     <React.Fragment>
@@ -290,12 +377,12 @@ export function ProductsTable({ rows = [] }) {
           ...col,
           formatter: col.formatter ? (row) => col.formatter(row, handleRowClick) : undefined,
         }))}
-        rows={rows}
+        rows={incidents}
       />
-      {!rows.length ? (
+      {!incidents.length ? (
         <Box sx={{ p: 3 }}>
           <Typography color="text.secondary" sx={{ textAlign: 'center' }} variant="body2">
-            No incidents found
+            Нет инцидентов
           </Typography>
         </Box>
       ) : null}

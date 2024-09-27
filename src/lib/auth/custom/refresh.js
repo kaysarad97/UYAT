@@ -1,21 +1,33 @@
+
   'use client';
-  export async function fetchApi(url, options) {
-    try {
-      const response = await fetch(url, options);
-      if (!response.ok) {
-        let errorData = {};
-        try {
-          errorData = await response.json();
-        } catch (err) {
-          errorData.message = 'Failed to parse error response';
-        }
-        throw new Error(errorData.error || errorData.message || 'Unknown error');
-      }
-      return response.json();
-    } catch (error) {
-      throw new Error(error.message || 'Network error');
+
+export async function fetchApi(url, options) {
+  try {
+    const response = await fetch(url, options);
+
+    // Если статус 204 No Content, возвращаем null, так как тело ответа отсутствует
+    if (response.status === 204 || response.status === 205) {
+      return null;
     }
+
+    // Попытка прочитать тело ответа как JSON
+    try {
+      return await response.json();
+    } catch (err) {
+      // Если парсинг JSON не удался, проверяем, есть ли текст в ответе
+      const text = await response.text();
+      if (text) {
+        return { message: text }; // Возвращаем текстовое сообщение, если есть
+      }
+      throw new Error('Unknown error occurred');
+    }
+
+  } catch (error) {
+    // Если произошла ошибка, выбрасываем её с сообщением
+    throw new Error(error.message || 'Network error');
   }
+}
+
   class TokenService {
     static setTokens({ access_token, refresh_token }) {
       console.log('Saving tokens:', { access_token, refresh_token }); // Логируем установку токенов

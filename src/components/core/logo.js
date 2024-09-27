@@ -3,25 +3,36 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import { useColorScheme } from '@mui/material/styles';
-
 import { NoSsr } from '@/components/core/no-ssr';
 
-const HEIGHT = 60;
-const WIDTH = 60;
+const HEIGHT = 500;
+const WIDTH = 500;
 
-export function Logo({ color = 'dark', emblem, height = HEIGHT, width = WIDTH }) {
-  let url;
+export function Logo({ height = HEIGHT, width = WIDTH }) {
+  const url = '/assets/logo.jpg'; // Specify the correct path to your logo
 
-  // if (emblem) {
-  //   url = color === 'light' ? '/assets/logo-emblem.svg' : '/assets/logo-emblem--dark.svg';
-  // } else {
-  //   url = color === 'light' ? '/assets/logo.svg' : '/assets/logo--dark.svg';
-  // }
-
-  return <Box alt="logo" component="img" height={height} src={url} width={width} />;
+  return (
+    <Box
+      component="img"
+      alt="logo"
+      src={url}
+      sx={{
+        height: `${height}px`,
+        width: `${width}px`,
+        objectFit: 'contain', // Ensure the logo maintains its aspect ratio
+        objectPosition: 'center', // Center the logo within the box
+      }}
+    />
+  );
 }
 
-export function DynamicLogo({ colorDark = 'light', colorLight = 'dark', height = HEIGHT, width = WIDTH, ...props }) {
+export function DynamicLogo({
+  colorDark = 'light',
+  colorLight = 'dark',
+  height = HEIGHT,
+  width = WIDTH,
+  ...props
+}) {
   const { colorScheme } = useColorScheme();
   const color = colorScheme === 'dark' ? colorDark : colorLight;
 
