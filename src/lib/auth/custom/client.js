@@ -17,7 +17,7 @@ async function fetchApiWithAuth(url, options) {
     // fetchApi уже возвращает JSON, нет необходимости вызывать .json()
     const response = await fetchApi(url, modifiedOptions);
 
-    console.log('Initial JSON response:', response); // Логируем успешный JSON-ответ
+    // console.log('Initial JSON response:', response); // Логируем успешный JSON-ответ
 
     return response; // Возвращаем JSON с данными
   } catch (error) {

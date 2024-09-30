@@ -159,7 +159,7 @@
 // }
 'use client';
 
-import React, { useState,useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import IconButton from '@mui/material/IconButton';
@@ -172,9 +172,8 @@ import { Eye as EyeIcon } from '@phosphor-icons/react/dist/ssr/Eye';
 import { Image as ImageIcon } from '@phosphor-icons/react/dist/ssr/Image';
 import { DataTable } from '@/components/core/data-table';
 import { ProductModal } from './product-modal';
-import { fetchApiWithAuth } from '@/lib/auth/custom/client'; // Импорт функции для запросов с авторизацией
+import { fetchApiWithAuth } from '@/lib/auth/custom/client'; 
 import TokenService from '@/lib/auth/custom/refresh';
-
 
 const columns = [
   {
@@ -216,7 +215,8 @@ const columns = [
             {row.title}
           </Typography>
           <Typography color="text.secondary" variant="body2">
-            {row.tags}
+            {/* Проверяем тип данных перед выводом */}
+            {Array.isArray(row.tags) ? row.tags.join(', ') : row.tags || 'Без тегов'}
           </Typography>
         </div>
       </Stack>
@@ -229,10 +229,8 @@ const columns = [
     name: 'Предполагаемое вознаграждение',
     width: '150px',
   },
-
   {
     formatter: (row) => {
-      console.log('Row data:', row);
       if (row.set_employee_data) {
         const { name, surname, role } = row.set_employee_data;
         return `${name} ${surname} (${role})`;
@@ -240,23 +238,17 @@ const columns = [
       return 'Not Assigned';
     },
     name: 'Назначенный сотрудник',
-
   },
   {
     formatter: (row) => {
-      console.log('Row data:', row);
-    
-      // Formatting the "created_at" date
       const createdAt = new Date(row.created_at).toLocaleDateString('ru-RU', {
         year: 'numeric',
         month: 'long',
         day: 'numeric',
       });
-  
-      // Returning only the date
       return createdAt;
     },
-    name:'Дата создание',
+    name: 'Дата создание',
   },
   {
     formatter: (row) => {
@@ -306,24 +298,27 @@ export function ProductsTable({ filters = {} }) {
       let url = 'http://37.99.82.96:8000/api/v1/incident-web/history?';
       const queryParams = new URLSearchParams();
 
-      // Добавляем фильтр по статусу
+      // Применяем фильтры
       if (filters.status) {
         queryParams.append('statuses', filters.status);
       }
 
-      // Добавляем фильтр по дате
       if (filters.date_filter) {
         queryParams.append('date_filter', filters.date_filter);
       }
 
+      if (filters.tag) {
+        queryParams.append('tags', filters.tag);  // Фильтр по тегам
+      }
+      console.log("Query Params:", queryParams.toString()); // Проверяем перед запросом
       url += queryParams.toString();
 
-      const token = TokenService.getAccessToken(); // Получаем токен для авторизации
+      const token = TokenService.getAccessToken();
 
       const response = await fetch(url, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
@@ -332,6 +327,20 @@ export function ProductsTable({ filters = {} }) {
       }
 
       const data = await response.json();
+      console.log("Filters:", filters);
+      console.log("Tags in fetched incidents:", data.map(incident => incident.tags));
+
+       // Применяем фильтр на клиенте, если выбран тег
+    const filteredIncidents = data.filter(incident => {
+      // Если фильтр по тегам не установлен, возвращаем все инциденты
+      if (!filters.tag) return true;
+
+      // Сравниваем строковое поле `tags` с выбранным тегом
+      return incident.tags === filters.tag;
+    });
+
+    setIncidents(filteredIncidents); 
+
       setIncidents(data);
     } catch (error) {
       setError(error.message);
@@ -341,7 +350,7 @@ export function ProductsTable({ filters = {} }) {
   };
 
   useEffect(() => {
-    fetchIncidents();
+    fetchIncidents(); // Обновляем данные при изменении фильтров
   }, [filters]);
 
   const handleRowClick = async (productId) => {
@@ -350,15 +359,13 @@ export function ProductsTable({ filters = {} }) {
       const productData = await fetchApiWithAuth(`http://37.99.82.96:8000/api/v1/incident-web/get/${productId}`, {
         method: 'GET',
       });
-  
-      // Format the creation date
+
       const formattedCreatedAt = new Date(productData.created_at).toLocaleDateString('ru-RU', {
         year: 'numeric',
         month: 'long',
         day: 'numeric',
       });
-  
-      // Pass the formatted date as part of the product data
+
       setSelectedProduct({ ...productData, formattedCreatedAt });
     } catch (err) {
       setError(err.message);
@@ -366,6 +373,7 @@ export function ProductsTable({ filters = {} }) {
       setLoading(false);
     }
   };
+
   const handleCloseModal = () => {
     setSelectedProduct(null);
   };
@@ -387,6 +395,7 @@ export function ProductsTable({ filters = {} }) {
         }))}
         rows={incidents}
       />
+
       {!incidents.length ? (
         <Box sx={{ p: 3 }}>
           <Typography color="text.secondary" sx={{ textAlign: 'center' }} variant="body2">
@@ -394,6 +403,7 @@ export function ProductsTable({ filters = {} }) {
           </Typography>
         </Box>
       ) : null}
+
       {selectedProduct && (
         <ProductModal open={!!selectedProduct} product={selectedProduct} onClose={handleCloseModal} />
       )}

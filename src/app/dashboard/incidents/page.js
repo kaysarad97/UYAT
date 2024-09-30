@@ -11,18 +11,34 @@ import Alert from '@mui/material/Alert';
 import { ProductsFilters } from '@/components/dashboard/incidents/products-filters';
 import { ProductsTable } from '@/components/dashboard/incidents/products-table';
 
-// Импорт TokenService
+// Import TokenService
 import { authClient } from '@/lib/auth/custom/client';
 import TokenService from '@/lib/auth/custom/refresh';
 
 export default function Page({ searchParams }) {
   const [incidents, setIncidents] = React.useState([]);
+  const [tags, setTags] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState(null);
   const [filters, setFilters] = React.useState({
     status: searchParams.status || '',
     date_filter: searchParams.date_filter || '',
+    tag: '', // Add tag filter to state if needed
   });
+
+  // Fetch tags from the API
+  const fetchTags = async () => {
+    try {
+      const response = await fetch('http://37.99.82.96:8000/api/v1/tags/');
+      if (!response.ok) {
+        throw new Error('Ошибка при загрузке тегов');
+      }
+      const tagsData = await response.json();
+      setTags(tagsData);
+    } catch (err) {
+      setError(err.message);
+    }
+  };
 
   const handleFiltersChange = (newFilters) => {
     setFilters(newFilters);
@@ -38,7 +54,14 @@ export default function Page({ searchParams }) {
 
         let token = TokenService.getAccessToken();
 
-        let response = await fetch('http://37.99.82.96:8000/api/v1/incident-web/history/', {
+        // Construct the query parameters based on the filters
+        const queryParams = new URLSearchParams();
+        if (filters.status) queryParams.append('statuses', filters.status);
+        if (filters.date_filter) queryParams.append('date_filter', filters.date_filter);
+        if (filters.tag) queryParams.append('tags', filters.tag); // Handle tag filtering if needed
+
+        // Fetch incidents with filters applied
+        let response = await fetch(`http://37.99.82.96:8000/api/v1/incident-web/history/?${queryParams.toString()}`, {
           headers: {
             'Authorization': `Bearer ${token}`,
           },
@@ -47,7 +70,7 @@ export default function Page({ searchParams }) {
         if (response.status === 401) {
           await TokenService.refreshTokens();
           token = TokenService.getAccessToken();
-          response = await fetch('http://37.99.82.96:8000/api/v1/incident-web/history/', {
+          response = await fetch(`http://37.99.82.96:8000/api/v1/incident-web/history/?${queryParams.toString()}`, {
             headers: {
               'Authorization': `Bearer ${token}`,
             },
@@ -67,8 +90,10 @@ export default function Page({ searchParams }) {
       }
     };
 
+    // Fetch tags and incidents
+    fetchTags();
     fetchIncidents();
-  }, []);
+  }, [filters]); // Trigger fetching when filters change
 
   if (loading) {
     return (
@@ -91,7 +116,7 @@ export default function Page({ searchParams }) {
       <Stack spacing={4}>
         <Typography variant="h4">Список проишествий</Typography>
         <Card>
-          <ProductsFilters filters={filters} onChange={handleFiltersChange} />
+          <ProductsFilters filters={filters} onChange={handleFiltersChange} tags={tags} />
           <Divider />
           <Box sx={{ overflowX: 'auto' }}>
             <ProductsTable rows={incidents} filters={filters} />
