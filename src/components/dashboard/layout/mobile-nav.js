@@ -60,7 +60,7 @@ export function MobileNav({ items = [], open, onClose }) {
       <Stack spacing={2} sx={{ p: 2 }}>
         <div>
           <Box component={RouterLink} href={paths.home} sx={{ display: 'inline-flex' }}>
-            <Logo color="light" height={32} width={122} />
+            <Logo color="light" height={100} width={240} />
           </Box>
         </div>
         <WorkspacesSwitch />

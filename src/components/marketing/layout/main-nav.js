@@ -43,7 +43,7 @@ export function MainNav() {
         <Container maxWidth="lg" sx={{ display: 'flex', minHeight: 'var(--MainNav-height)', py: '16px' }}>
           <Stack direction="row" spacing={2} sx={{ alignItems: 'center', flex: '1 1 auto' }}>
             <Box component={RouterLink} href={paths.home} sx={{ display: 'inline-flex' }}>
-              <Logo color="light" height={32} width={122} />
+              <Logo color="light" height={100} width={240} />
               asf
             </Box>
             <Box component="nav" sx={{ display: { xs: 'none', md: 'block' } }}>

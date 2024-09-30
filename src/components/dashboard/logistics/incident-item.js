@@ -12,7 +12,7 @@ import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import { styled } from '@mui/system';
 import { useState } from 'react';
-
+import dayjs from 'dayjs';
 // Styled IconButton for a modern expand/collapse icon
 const ExpandMoreButton = styled((props) => {
   const { expand, ...other } = props;
@@ -45,10 +45,11 @@ export function IncidentItem({ incident, onSelect, onDeselect, selected }) {
       <TableRow hover onClick={handleToggle} sx={{ cursor: 'pointer', transition: 'all 0.3s', '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' } }}>
         <TableCell sx={{ padding: '16px 24px', fontWeight: 500 }}>{incident.title || 'No title available'}</TableCell>
         <TableCell sx={{ padding: '16px 24px' }}>{incident.tags || 'Unknown type'}</TableCell>
-        <TableCell sx={{ padding: '16px 24px' }}>{incident.employee || 'Не назначаен'}</TableCell>
+        {/* <TableCell sx={{ padding: '16px 24px' }}>{incident.employee || 'Не назначаен'}</TableCell> */}
         <TableCell sx={{ padding: '16px 24px' }}>{incident.author_id || 'Unknown creator'}</TableCell>
-        {/* <TableCell sx={{ padding: '16px 24px' }}>{incident.createdDate || 'Unknown date'}</TableCell> */}
-        <TableCell sx={{ padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <TableCell sx={{ padding: '16px 24px' }}>
+  {incident.created_at ? dayjs(incident.created_at).format('MMM D, hh:mm A') : 'Unknown date'}
+</TableCell>        <TableCell sx={{ padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           {incident.status || 'Unknown status'}
           <ExpandMoreButton expand={selected} onClick={handleToggle}>
             {/* You can replace this button with anything you prefer, or remove it */}

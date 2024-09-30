@@ -55,7 +55,7 @@ export function Footer() {
         <Grid container spacing={3}>
           <Grid md={3} sm={4} sx={{ order: { xs: 4, md: 1 } }} xs={12}>
             <Stack spacing={1}>
-              <DynamicLogo colorDark="light" colorLight="dark" height={32} width={122} />
+              <DynamicLogo colorDark="light" colorLight="dark" height={100} width={240} />
               <Typography color="text.secondary" variant="caption">
 
               </Typography>

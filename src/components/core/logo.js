@@ -3,25 +3,21 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import { useColorScheme } from '@mui/material/styles';
+
 import { NoSsr } from '@/components/core/no-ssr';
 
-const HEIGHT = 500;
-const WIDTH = 500;
+const HEIGHT = 100;
+const WIDTH = 240;
 
 export function Logo({ height = HEIGHT, width = WIDTH }) {
-  const url = '/assets/logo.jpg'; // Specify the correct path to your logo
+  const url = '/assets/logo_converted.png'; // Укажите путь к вашему логотипу
 
   return (
     <Box
-      component="img"
       alt="logo"
+      component="img"
       src={url}
-      sx={{
-        height: `${height}px`,
-        width: `${width}px`,
-        objectFit: 'contain', // Ensure the logo maintains its aspect ratio
-        objectPosition: 'center', // Center the logo within the box
-      }}
+      sx={{ height: `${height}px`, width: `${width}px` }} // Управляем размерами через sx
     />
   );
 }

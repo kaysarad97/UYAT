@@ -350,14 +350,22 @@ export function ProductsTable({ filters = {} }) {
       const productData = await fetchApiWithAuth(`http://37.99.82.96:8000/api/v1/incident-web/get/${productId}`, {
         method: 'GET',
       });
-      setSelectedProduct(productData);
+  
+      // Format the creation date
+      const formattedCreatedAt = new Date(productData.created_at).toLocaleDateString('ru-RU', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      });
+  
+      // Pass the formatted date as part of the product data
+      setSelectedProduct({ ...productData, formattedCreatedAt });
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
   };
-
   const handleCloseModal = () => {
     setSelectedProduct(null);
   };

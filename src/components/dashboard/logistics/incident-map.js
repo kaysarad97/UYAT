@@ -104,25 +104,30 @@ export function IncidentMap({ onIncidentSelect, currentIncidentId, incidents = [
   const handleSaveIncident = async () => {
     if (selectedIncident && selectedEmployee) {
       try {
-        const response = await fetchApiWithAuth(`http://37.99.82.96:8000/api/v1/incident-web/${selectedIncident.id}/update`, {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            set_employee: selectedEmployee.id, // Отправляем только ID сотрудника
-          }),
-        });
+        // Отправляем запрос на обновление
+        await fetchApiWithAuth(
+          `http://37.99.82.96:8000/api/v1/incident-web/${selectedIncident.id}/update`,
+          {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              set_employee: selectedEmployee.id, // Отправляем только ID сотрудника
+            }),
+          }
+        );
   
-        if (response.ok) {
-          setOpenConfirmationModal(true); // Открыть модальное окно подтверждения
-        }
+        // Открываем модальное окно подтверждения сразу после успешного запроса
+        setOpenConfirmationModal(true);
       } catch (error) {
         console.error('Error updating incident:', error);
         setError('Не удалось обновить инцидент');
       }
     }
   };
+  
+  
   
   
   const handleDeleteIncident = async () => {
@@ -326,19 +331,20 @@ export function IncidentMap({ onIncidentSelect, currentIncidentId, incidents = [
         </>
       )}
 
-      {openConfirmationModal && (
-        <Dialog open={openConfirmationModal} onClose={handleCloseConfirmationModal} fullWidth maxWidth="sm">
-          <DialogTitle>Подтверждение</DialogTitle>
-          <DialogContent>
-            <Typography>Инцидент успешно обновлен.</Typography>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleCloseConfirmationModal} variant="contained" color="primary" sx={{ width: '100%' }}>
-              OK
-            </Button>
-          </DialogActions>
-        </Dialog>
-      )}
+{openConfirmationModal && (
+  <Dialog open={openConfirmationModal} onClose={handleCloseConfirmationModal} fullWidth maxWidth="sm">
+    <DialogTitle>Подтверждение</DialogTitle>
+    <DialogContent>
+      <Typography>Инцидент успешно обновлен.</Typography>
+    </DialogContent>
+    <DialogActions>
+      <Button onClick={handleCloseConfirmationModal} variant="contained" color="primary" sx={{ width: '100%' }}>
+        OK
+      </Button>
+    </DialogActions>
+  </Dialog>
+)}
+
 
 {openDeleteConfirmationModal && (
   <Dialog open={openDeleteConfirmationModal} onClose={handleCloseDeleteConfirmationModal} fullWidth maxWidth="sm">
