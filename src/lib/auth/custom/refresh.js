@@ -37,7 +37,7 @@ export async function fetchApi(url, options) {
   
     static getAccessToken() {
       const accessToken = localStorage.getItem('access_token');
-      console.log('Получение токена:', accessToken); // Логируем получение токена
+      // console.log('Получение токена:', accessToken); // Логируем получение токена
       return accessToken;
     }
   

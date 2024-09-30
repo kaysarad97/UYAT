@@ -152,12 +152,14 @@
 //     </>
 //   );
 // }
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Card, Stack, Typography, IconButton, Dialog, DialogContent, Button, TextField, Avatar } from '@mui/material';
 import { X as XIcon } from '@phosphor-icons/react/dist/ssr/X';
+import { fetchApiWithAuth } from '@/lib/auth/custom/client'; 
 
 export function ProductModal({ open, product, onClose }) {
   const [analyticsOpen, setAnalyticsOpen] = useState(false);
+  const [authorData, setAuthorData] = useState(null); // Добавляем состояние для данных автора
 
   // Получаем Base64 контент медиа
   const mediaContent = product?.media?.[0]?.content || null;
@@ -166,6 +168,20 @@ export function ProductModal({ open, product, onClose }) {
 
   const isVideo = mediaContentType === 'video';
   const isImage = mediaContentType === 'image';
+
+  useEffect(() => {
+    if (product?.author_id) {
+      // Отправляем POST-запрос с токеном авторизации, используя fetchApiWithAuth
+      fetchApiWithAuth(`http://37.99.82.96:8000/api/v1/users/${product.author_id}`, {
+        method: 'POST', // Метод POST
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+        .then(data => setAuthorData(data)) // Сохраняем данные автора
+        .catch(error => console.error('Ошибка при загрузке данных автора:', error));
+    }
+  }, [product?.author_id]);
 
   const handleAnalyticsOpen = () => {
     setAnalyticsOpen(true);
@@ -215,19 +231,6 @@ export function ProductModal({ open, product, onClose }) {
           {/* Правая часть: Информация об инциденте */}
           <Box sx={{ flex: 1, padding: 2 }}>
             <Stack spacing={2}>
-              {/* Данные о сотруднике
-              <Card variant="outlined" sx={{ padding: 2 }}>
-                <Stack direction="row" spacing={2} alignItems="center">
-                  <Avatar src="/path/to/your/avatar" alt="Avatar" sx={{ width: 56, height: 56 }} />
-                  <Stack>
-                    <Typography variant="h6">
-                      {product?.set_employee_data?.name || 'Кайратбеков Кайрат Кайратович'}
-                    </Typography>
-                    <Typography variant="body2">ИИН: {product?.set_employee_data?.iin || '999999999999'}</Typography>
-                    <Typography variant="body2">Телефон: {product?.set_employee_data?.phone || '+71231231234'}</Typography>
-                  </Stack>
-                </Stack>
-              </Card> */}
 
               {/* Используем crop для иконки и result.data для номера */}
               {product?.analytics_results?.map((result, index) => (
@@ -280,7 +283,12 @@ export function ProductModal({ open, product, onClose }) {
         {/* Поля внизу */}
         <Box sx={{ padding: 2 }}>
           <Stack direction="row" spacing={2} justifyContent="space-between">
-            <TextField label="Автор инцидента" value={product?.author_id || 'Джони Деп'} fullWidth />
+            {/* Поле "Автор инцидента" */}
+            <TextField 
+              label="Автор инцидента" 
+              value={authorData ? `${authorData.name} ${authorData.surname}` : 'Джони Деп'} 
+              fullWidth 
+            />
             <TextField label="Сумма вознаграждения" value={`₸ ${product?.achievement_sum || '2000'}`} fullWidth />
           </Stack>
           <Stack direction="row" spacing={2} justifyContent="space-between" sx={{ mt: 2 }}>
@@ -289,13 +297,12 @@ export function ProductModal({ open, product, onClose }) {
               value={product?.set_employee_data?.name || 'Кайратов Кайрат Кайратович'}
               fullWidth
             />
-<TextField 
-  label="Дата создания" 
-  value={product?.formattedCreatedAt || 'Нет данных'} // Use the formatted date
-  fullWidth 
-/>
-        
- </Stack>
+            <TextField 
+              label="Дата создания" 
+              value={product?.formattedCreatedAt || 'Нет данных'} 
+              fullWidth 
+            />
+          </Stack>
         </Box>
       </Dialog>
 
