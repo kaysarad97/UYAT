@@ -46,7 +46,7 @@ export function IncidentItem({ incident, onSelect, onDeselect, selected }) {
         <TableCell sx={{ padding: '16px 24px', fontWeight: 500 }}>{incident.title || 'No title available'}</TableCell>
         <TableCell sx={{ padding: '16px 24px' }}>{incident.tags || 'Unknown type'}</TableCell>
         {/* <TableCell sx={{ padding: '16px 24px' }}>{incident.employee || 'Не назначаен'}</TableCell> */}
-        <TableCell sx={{ padding: '16px 24px' }}>{incident.author_id || 'Unknown creator'}</TableCell>
+        {/* <TableCell sx={{ padding: '16px 24px' }}>{incident.author_id || 'Unknown creator'}</TableCell> */}
         <TableCell sx={{ padding: '16px 24px' }}>
   {incident.created_at ? dayjs(incident.created_at).format('MMM D, hh:mm A') : 'Unknown date'}
 </TableCell>        <TableCell sx={{ padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

@@ -229,16 +229,16 @@ const columns = [
     name: 'Предполагаемое вознаграждение',
     width: '150px',
   },
-  {
-    formatter: (row) => {
-      if (row.set_employee_data) {
-        const { name, surname, role } = row.set_employee_data;
-        return `${name} ${surname} (${role})`;
-      }
-      return 'Not Assigned';
-    },
-    name: 'Назначенный сотрудник',
-  },
+  // {
+  //   formatter: (row) => {
+  //     if (row.set_employee_data) {
+  //       const { name, surname, role } = row.set_employee_data;
+  //       return `${name} ${surname} (${role})`;
+  //     }
+  //     return 'Not Assigned';
+  //   },
+  //   name: 'Назначенный сотрудник',
+  // },
   {
     formatter: (row) => {
       const createdAt = new Date(row.created_at).toLocaleDateString('ru-RU', {
