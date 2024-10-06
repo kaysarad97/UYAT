@@ -9,7 +9,7 @@ import { List as ListIcon } from '@phosphor-icons/react/dist/ssr/List';
 import { IncidentMap } from './incident-map';
 import { Sidebar } from './sidebar';
 
-export function IncidentView({ incidents }) {
+export function IncidentView({ incidents,setIncidents }) {
   const [openSidebar, setOpenSidebar] = React.useState(false);
   const [currentIncidentId, setCurrentIncidentId] = React.useState(incidents[0]?.id);
 
@@ -28,7 +28,7 @@ export function IncidentView({ incidents }) {
   const handleSidebarClose = React.useCallback(() => {
     setOpenSidebar(false);
   }, []);
-
+  console.log('setIncidents in IncidentView:', setIncidents);
   return (
     <Box sx={{ display: 'flex', flex: '1 1 0', minHeight: 0 }}>
       <Sidebar
@@ -49,10 +49,13 @@ export function IncidentView({ incidents }) {
             Инциденты
           </Button>
         </Stack>
+        
         <IncidentMap
           currentIncidentId={currentIncidentId}
           onIncidentSelect={handleIncidentSelect}
           incidents={incidents}
+          
+          setIncidents={setIncidents}
         />
       </Box>
     </Box>

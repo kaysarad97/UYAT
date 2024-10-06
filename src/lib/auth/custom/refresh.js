@@ -43,7 +43,8 @@ export async function fetchApi(url, options) {
   
     static getRefreshToken() {
       const refreshToken = localStorage.getItem('refresh_token');
-      console.log('Retrieved refresh token:', refreshToken); // Логируем получение refresh токена
+      console.log('Текущий refresh_token:', refreshToken);
+ // Логируем получение refresh токена
       return refreshToken;
     }
   
@@ -55,46 +56,55 @@ export async function fetchApi(url, options) {
   
     static async refreshTokens() {
       const refreshToken = this.getRefreshToken();
-  
+      
       if (!refreshToken) {
         console.error('No refresh token available');
         throw new Error('No refresh token available');
       }
-  
+    
       try {
         console.log('Refreshing token with refresh_token:', refreshToken); // Логируем процесс обновления
-  
+    
         const response = await fetch('http://37.99.82.96:8000/api/v1/admins/refresh/', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ refresh_token: refreshToken }), // Используем refresh_token для обновления
+          body: JSON.stringify({ refresh_token: refreshToken }), // Отправляем только refresh_token
         });
-  
+    
         if (!response.ok) {
+          if (response.status === 401 || response.status === 403) {
+            console.error('Invalid token. Redirecting to login.');
+            this.clearTokens(); 
+            window.location.href = '/login'; // Перенаправление на страницу авторизации
+            throw new Error('Токен недействителен, необходимо повторно авторизоваться.');
+          }
+    
           const errorData = await response.json();
-          console.error('Refresh token failed:', errorData); // Логируем неудачное обновление токена
+          console.error('Ошибка при обновлении токена:', response.status, response.statusText, errorData);
           throw new Error(errorData.error || errorData.message || 'Unknown refresh error');
         }
-  
+    
         const data = await response.json();
-        console.log('Received new tokens:', data); // Логируем новые токены
-  
+        console.log('Новые токены получены:', data); // Логируем новые токены
+    
         if (data.access_token && data.refresh_token) {
-          this.setTokens(data); // Сохраняем новые токены
+          this.setTokens({
+            access_token: data.access_token,
+            refresh_token: data.refresh_token,
+          });
         } else {
           throw new Error('Invalid token response during refresh');
         }
-  
+    
         return data;
       } catch (error) {
-        console.error('Failed to refresh tokens:', error);
+        console.error('Не удалось обновить токен:', error);
         this.clearTokens(); // Очищаем токены при неудачном обновлении
-        throw new Error('Failed to refresh token: ' + error.message);
+        throw new Error('Не удалось обновить токен: ' + error.message);
       }
     }
-  }
-  
+      }  
 
   export default TokenService;

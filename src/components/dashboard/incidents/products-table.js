@@ -229,16 +229,16 @@ const columns = [
     name: 'Предполагаемое вознаграждение',
     width: '150px',
   },
-  // {
-  //   formatter: (row) => {
-  //     if (row.set_employee_data) {
-  //       const { name, surname, role } = row.set_employee_data;
-  //       return `${name} ${surname} (${role})`;
-  //     }
-  //     return 'Not Assigned';
-  //   },
-  //   name: 'Назначенный сотрудник',
-  // },
+  {
+    formatter: (row) => {
+      if (row.set_employee_data) {
+        const { name, surname, role } = row.set_employee_data;
+        return `${name} ${surname} (${role})`;
+      }
+      return 'Not Assigned';
+    },
+    name: 'Назначенный сотрудник',
+  },
   {
     formatter: (row) => {
       const createdAt = new Date(row.created_at).toLocaleDateString('ru-RU', {
@@ -303,9 +303,9 @@ export function ProductsTable({ filters = {} }) {
         queryParams.append('statuses', filters.status);
       }
 
-      if (filters.date_filter) {
-        queryParams.append('date_filter', filters.date_filter);
-      }
+      // if (filters.date_filter) {
+      //   queryParams.append('date_filter', filters.date_filter);
+      // }
 
       if (filters.tag) {
         queryParams.append('tags', filters.tag);  // Фильтр по тегам
@@ -325,8 +325,12 @@ export function ProductsTable({ filters = {} }) {
       if (!response.ok) {
         throw new Error(`Ошибка при загрузке данных: ${response.status} ${response.statusText}`);
       }
+      let data = await response.json();
 
-      const data = await response.json();
+      // Сортируем данные по дате создания (created_at) в порядке убывания
+      data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+      // const data = await response.json();
       console.log("Filters:", filters);
       console.log("Tags in fetched incidents:", data.map(incident => incident.tags));
 

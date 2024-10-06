@@ -1,3 +1,61 @@
+// 'use client';
+
+// import TokenService, { fetchApi } from './refresh';
+
+// async function fetchApiWithAuth(url, options) {
+//   let accessToken = TokenService.getAccessToken();
+
+//   const modifiedOptions = {
+//     ...options,
+//     headers: {
+//       ...options.headers,
+//       'Authorization': `Bearer ${accessToken}`, // Добавляем токен в заголовки
+//     },
+//   };
+
+//   try {
+//     // fetchApi уже возвращает JSON, нет необходимости вызывать .json()
+//     const response = await fetchApi(url, modifiedOptions);
+
+//     if (response.status === 204 || response.status === 205) {
+//       return null; // Успешный запрос, но нет данных для отображения
+//     }
+//     // Проверка на null, если возвращен статус 204 или 205
+//     if (response === null) {
+//       throw new Error('Нет данных для отображения'); // Логируем и обрабатываем
+//     }
+
+//     return response; // Возвращаем JSON с данными
+//   } catch (error) {
+//     console.error('Первоначальный запрос не удался:', error);
+
+//     if (error.message.includes('401')) { // Если ошибка 401 (Unauthorized)
+//       try {
+//         console.log('Access token истек, пытаемся обновить');
+//         await TokenService.refreshTokens();
+//         accessToken = TokenService.getAccessToken();
+      
+//         modifiedOptions.headers['Authorization'] = `Bearer ${accessToken}`;
+      
+//         // Повторяем запрос с новым токеном
+//         const retryResponse = await fetchApi(url, modifiedOptions);
+//         console.log('Retry JSON response:', retryResponse); // Логируем успешный повторный JSON-ответ
+      
+//         return retryResponse; // Возвращаем обновленный JSON с данными
+//       } catch (refreshError) {
+//         console.error('Не удалось обновить токен:', refreshError);
+//         TokenService.clearTokens();
+//         throw refreshError;
+//       }
+      
+//     }
+
+//     throw error;
+//   }
+// }
+
+// export { fetchApiWithAuth };
+
 'use client';
 
 import TokenService, { fetchApi } from './refresh';
@@ -14,31 +72,43 @@ async function fetchApiWithAuth(url, options) {
   };
 
   try {
-    // fetchApi уже возвращает JSON, нет необходимости вызывать .json()
     const response = await fetchApi(url, modifiedOptions);
 
-    // console.log('Initial JSON response:', response); // Логируем успешный JSON-ответ
+    // Если ответ с кодом 204 или 205, возвращаем null (успешный запрос без данных)
+    if (response && (response.status === 204 || response.status === 205)) {
+      return null; // Успешный запрос без данных для отображения
+    }
 
-    return response; // Возвращаем JSON с данными
+    // Если response равен null или undefined, выбрасываем ошибку
+    if (!response) {
+      return null; // Нормальное поведение для 204/205
+    }
+
+    return response; // Возвращаем успешный JSON-ответ
   } catch (error) {
     console.error('Первоначальный запрос не удался:', error);
 
-    if (error.message.includes('401')) { // Если ошибка 401 (Unauthorized)
+    // Обработка ошибки 401 (Unauthorized)
+    if (error.message.includes('401')) {
       try {
-        console.log('Access token истек, пытаемся обновить');
+        console.log('Access token истек, обновляем токен...');
         await TokenService.refreshTokens();
         accessToken = TokenService.getAccessToken();
-
+      
         modifiedOptions.headers['Authorization'] = `Bearer ${accessToken}`;
-
+      
         // Повторяем запрос с новым токеном
         const retryResponse = await fetchApi(url, modifiedOptions);
-        console.log('Retry JSON response:', retryResponse); // Логируем успешный повторный JSON-ответ
 
-        return retryResponse; // Возвращаем обновленный JSON с данными
+        // Проверка статуса повторного запроса (204/205)
+        if (retryResponse && (retryResponse.status === 204 || retryResponse.status === 205)) {
+          return null; // Успешный повторный запрос без данных
+        }
+
+        return retryResponse; // Возвращаем повторный успешный JSON-ответ
       } catch (refreshError) {
-        console.error('Не удалось обновить токен:', refreshError);
-        TokenService.clearTokens();
+        console.error('Ошибка при обновлении токена:', refreshError);
+        TokenService.clearTokens(); // Очищаем токены при ошибке обновления
         throw refreshError;
       }
     }
@@ -49,69 +119,10 @@ async function fetchApiWithAuth(url, options) {
 
 export { fetchApiWithAuth };
 
-// async function fetchApiWithAuth(url, options) {
-//   let accessToken = TokenService.getAccessToken(); // Получаем access_token
-
-//   console.log('Access token:', accessToken); // Логируем access_token перед запросом
-
-//   const modifiedOptions = {
-//     ...options,
-//     headers: {
-//       ...options.headers,
-//       'Authorization': `Bearer ${accessToken}`, // Добавляем токен в заголовки
-//     },
-//   };
-
-//   console.log('Sending request with headers:', modifiedOptions.headers); // Логируем заголовки
-
-//   try {
-//     const response = await fetchApi(url, modifiedOptions);
-//     console.log('Initial response:', response); // Логируем успешный ответ
-//     return response;
-//   } catch (error) {
-//     console.error('Первоначальный запрос не удался:', error); // Логируем ошибку
-
-//     if (error.message.includes('401')) { // Если ошибка 401 (Unauthorized)
-//       try {
-//         console.log('Access token истек, пытаемся обновить'); // Логируем истечение токена
-
-//         await TokenService.refreshTokens(); // Обновляем токен
-//         accessToken = TokenService.getAccessToken(); // Получаем новый access_token
-//         console.log('New access token:', accessToken); // Логируем новый токен
-
-//         modifiedOptions.headers['Authorization'] = `Bearer ${accessToken}`; // Обновляем заголовки
-
-//         // Повторяем запрос с новым токеном
-//         const retryResponse = await fetchApi(url, modifiedOptions);
-//         console.log('Retry response:', retryResponse); // Логируем успешный повторный запрос
-//         return retryResponse;
-//       } catch (refreshError) {
-//         console.error('Не удалось обновить токен:', refreshError); // Логируем ошибку обновления
-//         TokenService.clearTokens(); // Очищаем токены при сбое
-//         throw refreshError; // Пробрасываем ошибку
-//       }
-//     }
-
-//     throw error; // Пробрасываем ошибку для других случаев
-//   }
-// }
-
-
-
-
-
 class AuthClient {
-  async signUp(_) {
-    return { error: 'Sign-up not implemented' };
-  }
-
-  async signInWithOAuth(_) {
-    return { error: 'Social authentication not implemented' };
-  }
-
   async signInWithPassword(params) {
     const { username, password } = params;
-
+  
     try {
       const response = await fetchApi('http://37.99.82.96:8000/api/v1/admins/token/', {
         method: 'POST',
@@ -120,21 +131,26 @@ class AuthClient {
         },
         body: JSON.stringify({ username, password }),
       });
-
+  
       const { access_token, refresh_token } = response;
       if (!access_token || !refresh_token) {
         return { error: 'Invalid credentials' };
       }
-
-      // Store the tokens
+  
+      // Сохраняем токены и username
       TokenService.setTokens({ access_token, refresh_token });
-
-      // Return user data or token as needed
+      localStorage.setItem('username', username); // Сохраняем username для использования при обновлении токена
+  
+      // Возвращаем данные токенов или другие данные
       return { data: { access_token } };
     } catch (error) {
       return { error: error.message };
     }
   }
+
+  // Остальные методы остаются без изменений...
+
+  
 
   async resetPassword(_) {
     return { error: 'Password reset not implemented' };

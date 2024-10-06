@@ -292,11 +292,11 @@ export function ProductModal({ open, product, onClose }) {
             <TextField label="Сумма вознаграждения" value={`₸ ${product?.achievement_sum || '2000'}`} fullWidth />
           </Stack>
           <Stack direction="row" spacing={2} justifyContent="space-between" sx={{ mt: 2 }}>
-            {/* <TextField
+            <TextField
               label="Назначенный сотрудник"
               value={product?.set_employee_data?.name || 'Кайратов Кайрат Кайратович'}
               fullWidth
-            /> */}
+            />
             <TextField 
               label="Дата создания" 
               value={product?.formattedCreatedAt || 'Нет данных'} 

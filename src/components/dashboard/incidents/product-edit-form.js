@@ -69,16 +69,16 @@ const columns = [
     name: 'Предполагаемое вознаграждение',
     width: '150px',
   },
-  // {
-  //   formatter: (row) => {
-  //     if (row.set_employee_data) {
-  //       const { name, surname, role } = row.set_employee_data;
-  //       return `${name} ${surname} (${role})`;
-  //     }
-  //     return 'Not Assigned';
-  //   },
-  //   name: 'Назначенный сотрудник',
-  // },
+  {
+    formatter: (row) => {
+      if (row.set_employee_data) {
+        const { name, surname, role } = row.set_employee_data;
+        return `${name} ${surname} (${role})`;
+      }
+      return 'Not Assigned';
+    },
+    name: 'Назначенный сотрудник',
+  },
   {
     formatter: (row) => {
       const createdAt = new Date(row.created_at).toLocaleDateString('ru-RU', {
@@ -146,7 +146,12 @@ export function ProductEditForm() {
       if (!response.ok) {
         throw new Error(`Ошибка при загрузке данных: ${response.status} ${response.statusText}`);
       }
-      const data = await response.json();
+      // const data = await response.json();
+      let data = await response.json();
+
+      // Сортируем данные по полю created_at в порядке убывания (сначала последние инциденты)
+      data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+  
       setIncidents(data);
     } catch (error) {
       setError(error.message);

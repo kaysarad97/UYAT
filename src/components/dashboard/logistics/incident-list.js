@@ -25,7 +25,7 @@ export function IncidentList({ onIncidentDeselect, onIncidentSelect, currentInci
             <TableCell>Наименование</TableCell>
             <TableCell>Тип происшествия</TableCell>
             {/* <TableCell>Назначенный сотрудник</TableCell> */}
-            {/* <TableCell>Создал</TableCell> */}
+            <TableCell>Создал</TableCell>
             <TableCell>Дата создания</TableCell>
             <TableCell>Статус</TableCell>
           </TableRow>

@@ -89,7 +89,7 @@ router.refresh();
                 name="username"
                 render={({ field }) => (
                   <FormControl error={Boolean(errors.username)}>
-                    <InputLabel>Username</InputLabel>
+                    <InputLabel>Логин</InputLabel>
                     <OutlinedInput {...field} type="text" />
                     {errors.username && <FormHelperText>{errors.username.message}</FormHelperText>}
                   </FormControl>

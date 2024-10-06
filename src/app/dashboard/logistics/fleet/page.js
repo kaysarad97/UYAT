@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { IncidentView } from '@/components/dashboard/logistics/incident-view'; // Ensure path is correct
+import { IncidentView } from '@/components/dashboard/logistics/incident-view'; // Убедитесь, что путь правильный
 import { fetchApiWithAuth } from '@/lib/auth/custom/client';
 
 export default function Page() {
@@ -12,20 +12,21 @@ export default function Page() {
   // Функция для получения данных о инцидентах
   const fetchIncidents = async () => {
     try {
-      // Используем fetchApiWithAuth для выполнения запроса с токеном
+      console.log('Запрос инцидентов...'); // Логируем начало запроса
       const data = await fetchApiWithAuth('http://37.99.82.96:8000/api/v1/incident-web/', {
         method: 'GET',
       });
 
       if (Array.isArray(data)) {
+        console.log('Инциденты получены успешно:', data); // Логируем успешный запрос
         setIncidents(data); // Обновляем состояние с данными инцидентов
       } else {
         console.error('Данные не являются массивом', data);
         setError('Некорректный ответ от сервера');
       }
     } catch (err) {
-      setError('Ошибка при получении данных'); // Устанавливаем сообщение об ошибке
       console.error('Ошибка при получении инцидентов:', err); // Логируем ошибку для отладки
+      setError('Ошибка при получении данных'); // Устанавливаем сообщение об ошибке
     } finally {
       setLoading(false); // Останавливаем индикатор загрузки после завершения запроса
     }
@@ -50,8 +51,7 @@ export default function Page() {
       {incidents.length === 0 ? (
         <div>Нет доступных инцидентов</div> // Отображаем сообщение, если инциденты не найдены
       ) : (
-        <IncidentView incidents={incidents} /> // Отображаем компонент с инцидентами
-      )}
+<IncidentView incidents={incidents} setIncidents={setIncidents} />      )}
     </>
   );
 }
